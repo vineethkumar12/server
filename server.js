@@ -45,7 +45,7 @@ client.query('select * from public.users', (err,result)=>{
    
  app.use(express.json())
  app.use( cors({
-  origin:"*"
+  origin:"https://vineethkumar12.github.io/facedetectionapp/"
  }
   
 ))
