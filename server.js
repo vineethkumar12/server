@@ -46,6 +46,7 @@ client.query('select * from public.users', (err,result)=>{
  app.use(express.json())
  app.use( cors({
   origin:'https://vineethkumar12.github.io',
+  credentials :true
 }))
 const database= {
   users:
