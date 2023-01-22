@@ -1,6 +1,10 @@
 const bodyParser = require('body-parser')
 const express =require('express') 
-const cors =require('cors') 
+const cors =require('cors')  
+const app = express()
+app.use( cors({
+  origin:'https://vineethkumar12.github.io',
+}))
 const bcrypt=require('bcrypt')
 const {knex}=require('knex')
 const register=require('./register')
@@ -40,7 +44,7 @@ client.query('select * from public.users', (err,result)=>{
 
 })*/
 //db.select('*').from('public.users').then(data=>console.log(data))
-const app = express()   
+   
  app.use(express.json())
  app.use(cors())
 const database= {
