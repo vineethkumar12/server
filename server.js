@@ -44,7 +44,9 @@ client.query('select * from public.users', (err,result)=>{
 //db.select('*').from('public.users').then(data=>console.log(data))
    
  app.use(express.json())
- app.use( cors(
+ app.use( cors({
+  origin:"*"
+ }
   
 ))
 const database= {
