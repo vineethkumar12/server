@@ -1,14 +1,15 @@
-const bodyParser = require("body-parser");
 const express = require("express");
 const cors = require("cors");
-const app = express();
-
 const bcrypt = require("bcrypt");
 const { knex } = require("knex");
 const register = require("./register");
 
-// Load environment variablesjj
+// Load environment variables
 require("dotenv").config();
+
+const app = express();
+app.use(express.json());
+app.use(cors());
 
 const db = knex({
   client: "pg",
@@ -17,34 +18,9 @@ const db = knex({
     user: process.env.DB_USER || "postgres",
     password: process.env.DB_PASSWORD || "vinni@123#",
     database: process.env.DB_NAME || "facedatabase",
-    port: process.env.PORT,
+    port: process.env.DB_PORT || 5432, // Default PostgreSQL port
   },
 });
-
-app.use(express.json());
-app.use(cors());
-
-const database = {
-  users: [
-    {
-      id: "123",
-      name: "vineeth",
-      email: "adepuvineethkumarvinni@gmail.com",
-      password: "vineeth",
-      entries: "0",
-      joined: new Date(),
-    },
-    {
-      id: "124",
-      name: "vinay",
-      email: "vinay@gmail.com",
-      password: "vinay",
-      entries: "0",
-      joined: new Date(),
-    },
-  ],
-  login: [{ id: "987", hash: "", email: "adepuvineethkumarvinni@gmail.com" }],
-};
 
 app.post("/signin", (req, res) => {
   const { email, password } = req.body;
@@ -53,28 +29,35 @@ app.post("/signin", (req, res) => {
     .from("login")
     .where("email", "=", email)
     .then((data) => {
-      if (data.length > 0 && data[0].password === password) {
-        db.select("*")
-          .from("users")
-          .where("email", "=", email)
-          .then((user) => {
-            res.json(user[0]);
-            res.send("success");
-          })
-          .catch((err) => res.status(400).json(err));
+      if (data.length > 0) {
+        const hash = data[0].password;
+        bcrypt.compare(password, hash, function (err, result) {
+          if (result) {
+            db.select("*")
+              .from("users")
+              .where("email", "=", email)
+              .then((user) => {
+                res.json(user[0]);
+              })
+              .catch((err) => res.status(400).json(err));
+          } else {
+            res.status(400).json("Invalid email or password");
+          }
+        });
       } else {
-        res.status(400).json("invalid user");
+        res.status(400).json("User not found");
       }
     })
     .catch((err) => res.status(400).json(err));
 });
 
 app.post("/register", (req, res) => {
-  register.handleregister(req, res, db);
+  // Implement registration logic here
 });
 
 app.get("/", (req, res) => {
   res.send(database.users);
 });
 
-app.listen(3000, () => console.log("server is running"));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
