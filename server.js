@@ -7,7 +7,7 @@ const bcrypt = require("bcrypt");
 const { knex } = require("knex");
 const register = require("./register");
 
-// Load environment variables
+// Load environment variablesjj
 require("dotenv").config();
 
 const db = knex({
