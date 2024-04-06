@@ -7,6 +7,27 @@ const register = require("./register");
 // Load environment variables
 require("dotenv").config();
 
+const database = {
+  users: [
+    {
+      id: "123",
+      name: "vineeth",
+      email: "adepuvineethkumarvinni@gmail.com",
+      password: "vineeth",
+      entries: "0",
+      joined: new Date(),
+    },
+    {
+      id: "124",
+      name: "vinay",
+      email: "vinay@gmail.com",
+      password: "vinay",
+      entries: "0",
+      joined: new Date(),
+    },
+  ],
+  login: [{ id: "987", hash: "", email: "adepuvineethkumarvinni@gmail.com" }],
+};
 const app = express();
 app.use(express.json());
 app.use(
