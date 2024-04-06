@@ -7,27 +7,6 @@ const register = require("./register");
 // Load environment variables
 require("dotenv").config();
 
-const database = {
-  users: [
-    {
-      id: "123",
-      name: "vineeth",
-      email: "adepuvineethkumarvinni@gmail.com",
-      password: "vineeth",
-      entries: "0",
-      joined: new Date(),
-    },
-    {
-      id: "124",
-      name: "vinay",
-      email: "vinay@gmail.com",
-      password: "vinay",
-      entries: "0",
-      joined: new Date(),
-    },
-  ],
-  login: [{ id: "987", hash: "", email: "adepuvineethkumarvinni@gmail.com" }],
-};
 const app = express();
 app.use(express.json());
 app.use(
@@ -39,13 +18,7 @@ app.use(
 
 const db = knex({
   client: "pg",
-  connection: {
-    host: process.env.DB_URL || "127.0.0.1",
-    user: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "vinni@123#",
-    database: process.env.DB_NAME || "facedatabase",
-    port: process.env.DB_PORT || 5432, // Default PostgreSQL port
-  },
+  connection: process.env.DB_URL,
 });
 
 app.post("/signin", (req, res) => {
