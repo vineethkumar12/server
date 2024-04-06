@@ -40,13 +40,7 @@ const database = {
 
 const db = knex({
   client: "pg",
-  connection: {
-    host: process.env.DB_URL || "127.0.0.1",
-    user: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "vinni@123#",
-    database: process.env.DB_NAME || "facedatabase",
-    port: process.env.DB_PORT || 5432, // Default PostgreSQL port
-  },
+  connection: process.env.DB_URL,
 });
 
 app.post("/signin", (req, res) => {
