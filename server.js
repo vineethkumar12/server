@@ -10,7 +10,7 @@ require("dotenv").config();
 const app = express();
 app.use(express.json());
 
-// Allow requests only from your GitHub Pages domain
+// Allow requests only from your GitHub Pages domainm
 app.use(
   cors({
     origin: "https://vineethkumar12.github.io",
