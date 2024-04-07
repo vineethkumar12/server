@@ -73,7 +73,7 @@ app.post("/signin", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  // Implement registration logic here
+  register.handleregister(req, res, db);
 });
 
 app.get("/", (req, res) => {
