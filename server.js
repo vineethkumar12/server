@@ -13,9 +13,10 @@ app.use(express.json());
 // Allow requests only from your GitHub Pages domain
 app.use(
   cors({
-    origin: "https://vineethkumar12.github.io",
+    origin: ["https://vineethkumar12.github.io", "http://localhost:3000"],
   })
 );
+
 const database = {
   name: "John Doe",
   email: "johndoe@example.com",
