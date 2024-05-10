@@ -1,36 +1,56 @@
-const handleregister = (req, res, db) => {
-  const { email, password, name } = req.body;
-  if (!email || !password || !name) {
-    return res.status(400).json("unable to get registers");
-  }
+const bcrypt = require("bcrypt");
 
-  // Store hash in your password DB.
+const handleregister = async (req, res, db) => {
+  try {
+    const { email, password, name } = req.body;
 
-  db.transaction((trx) => {
-    trx
-      .insert({
-        password: password,
-        email: email,
-      })
-      .into("login")
-      .returning("email")
-      .then((loginEmail) => {
-        return trx("users")
-          .returning("*")
+    // Validate input data
+    if (!email || !password || !name) {
+      return res.status(400).json("Missing email, password, or name.");
+    }
+
+    // Hash the plain password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Start a transaction
+    await db.transaction(async (trx) => {
+      try {
+        // Insert into 'login' table
+        const [loginEmail] = await trx("login")
           .insert({
-            name: name,
-            email: loginEmail[0].email,
-            joined: new Date(),
+            email,
+            password: hashedPassword,
           })
-          .then((user) => {
-            res.json(user[0]);
-          });
-      })
-      .then(trx.commit)
-      .catch(trx.rollback);
-  }).catch((err) => res.status(400).json(err));
+          .returning("email");
+
+        // Insert into 'users' table
+        const [user] = await trx("users")
+          .insert({
+            name,
+            email: loginEmail.email,
+            joined: new Date(),
+            // Initialize entries with 0 or any other default value
+          })
+          .returning("*");
+
+        // Respond with the newly registered user
+        res.json(user);
+
+        // Commit the transaction
+        await trx.commit();
+      } catch (err) {
+        console.error("Transaction error:", err);
+        // Roll back the transaction if an error occurs
+        await trx.rollback();
+        throw err;
+      }
+    });
+  } catch (err) {
+    console.error("Internal server error:", err);
+    res.status(500).json("Internal server error.");
+  }
 };
 
 module.exports = {
-  handleregister: handleregister,
+  handleregister,
 };

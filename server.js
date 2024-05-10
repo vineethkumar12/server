@@ -16,7 +16,11 @@ app.use(
     origin: "https://vineethkumar12.github.io",
   })
 );
-
+const database = {
+  name: "John Doe",
+  email: "johndoe@example.com",
+  plainPassword: "password123",
+};
 const db = knex({
   client: "pg",
   connection: {
@@ -77,7 +81,7 @@ app.post("/register", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.send(database.users);
+  res.send(database);
 });
 
 const PORT = process.env.PORT || 3000;
