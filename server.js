@@ -10,44 +10,38 @@ require("dotenv").config();
 const app = express();
 app.use(express.json());
 
-// Allow requests only from your GitHub Pages domainm
+// Allow requests only from your GitHub Pages domain
 app.use(
   cors({
     origin: "https://vineethkumar12.github.io",
   })
 );
-const database = {
-  users: [
-    {
-      id: "123",
-      name: "vineeth",
-      email: "adepuvineethkumarvinni@gmail.com",
-      password: "vineeth",
-      entries: "0",
-      joined: new Date(),
-    },
-    {
-      id: "124",
-      name: "vinay",
-      email: "vinay@gmail.com",
-      password: "vinay",
-      entries: "0",
-      joined: new Date(),
-    },
-  ],
-  login: [{ id: "987", hash: "", email: "adepuvineethkumarvinni@gmail.com" }],
-};
 
 const db = knex({
   client: "pg",
   connection: {
-    host: process.env.DB_URL || "127.0.0.1",
-    user: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "vinni@123#",
-    database: process.env.DB_NAME || "facedatabase",
-    port: process.env.DB_PORT || 3000, // Default PostgreSQL port
+    host: process.env.DB_URL,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT, // Default PostgreSQL port
+    ssl: {
+      rejectUnauthorized: false, // Accept self-signed certificates (change to `true` for production environments with trusted certificates)
+      // Add other SSL options here as needed:
+      // ca: 'path_to_ca_cert.pem',
+      // key: 'path_to_client_key.pem',
+      // cert: 'path_to_client_cert.pem',
+    },
   },
 });
+
+// Check database connection
+db.raw("SELECT 1")
+  .then(() => console.log("Database connected"))
+  .catch((err) => {
+    console.error("Database not connected:", err);
+    process.exit(1); // Exit the process if the database connection fails
+  });
 
 app.post("/signin", (req, res) => {
   const { email, password } = req.body;
@@ -86,5 +80,5 @@ app.get("/", (req, res) => {
   res.send(database.users);
 });
 
-const PORT = process.env.DB_PORT || 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
