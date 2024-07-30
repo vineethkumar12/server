@@ -1,27 +1,21 @@
 const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
-const { knex } = require("knex");
+const knex = require("knex");
 const register = require("./register");
-
-// Load environment variables
 require("dotenv").config();
 
 const app = express();
 app.use(express.json());
 
-
+// CORS configuration
 app.use(
   cors({
-    origin: ["https://vineethkumar12.github.io", "http://localhost:3000 "],
+    origin: ["https://vineethkumar12.github.io", "http://localhost:3000"],
   })
 );
 
-const database = {
-  name: "John Doe",
-  email: "johndoe@example.com",
-  plainPassword: "password123",
-};
+// Database connection setup
 const db = knex({
   client: "pg",
   connection: {
@@ -29,13 +23,9 @@ const db = knex({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    port: process.env.DB_PORT, // Default PostgreSQL port
+    port: process.env.DB_PORT,
     ssl: {
-      rejectUnauthorized: false, // Accept self-signed certificates (change to `true` for production environments with trusted certificates)
-      // Add other SSL options here as needed:
-      // ca: 'path_to_ca_cert.pem',
-      // key: 'path_to_client_key.pem',
-      // cert: 'path_to_client_cert.pem',
+      rejectUnauthorized: false,
     },
   },
 });
@@ -45,9 +35,10 @@ db.raw("SELECT 1")
   .then(() => console.log("Database connected"))
   .catch((err) => {
     console.error("Database not connected:", err);
-    process.exit(1); // Exit the process if the database connection fails
+    process.exit(1);
   });
 
+// Signin endpoint
 app.post("/signin", (req, res) => {
   const { email, password } = req.body;
 
@@ -57,7 +48,7 @@ app.post("/signin", (req, res) => {
     .then((data) => {
       if (data.length > 0) {
         const hash = data[0].password;
-        bcrypt.compare(password, hash, function (err, result) {
+        bcrypt.compare(password, hash, (err, result) => {
           if (result) {
             db.select("*")
               .from("users")
@@ -77,13 +68,18 @@ app.post("/signin", (req, res) => {
     .catch((err) => res.status(400).json(err));
 });
 
+// Register endpoint
 app.post("/register", (req, res) => {
   register.handleregister(req, res, db);
 });
 
+// Root endpoint
 app.get("/", (req, res) => {
-  res.send(database);
+  res.send({ message: "Server is running!" });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+// Serverless function handler for Vercel
+const serverless = require("serverless-http");
+
+module.exports = app;
+module.exports.handler = serverless(app);
