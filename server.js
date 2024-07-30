@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const knex = require("knex");
 const register = require("./register");
 require("dotenv").config();
@@ -8,14 +8,12 @@ require("dotenv").config();
 const app = express();
 app.use(express.json());
 
-// CORS configuration
 app.use(
   cors({
     origin: ["https://vineethkumar12.github.io", "http://localhost:3000"],
   })
 );
 
-// Database connection setup
 const db = knex({
   client: "pg",
   connection: {
@@ -30,15 +28,13 @@ const db = knex({
   },
 });
 
-// Check database connection
 db.raw("SELECT 1")
   .then(() => console.log("Database connected"))
   .catch((err) => {
-    console.error("Database not connected:", err);
+    console.error("Database not connected:", err.message);
     process.exit(1);
   });
 
-// Signin endpoint
 app.post("/signin", (req, res) => {
   const { email, password } = req.body;
 
@@ -68,17 +64,14 @@ app.post("/signin", (req, res) => {
     .catch((err) => res.status(400).json(err));
 });
 
-// Register endpoint
 app.post("/register", (req, res) => {
   register.handleregister(req, res, db);
 });
 
-// Root endpoint
 app.get("/", (req, res) => {
   res.send({ message: "Server is running!" });
 });
 
-// Serverless function handler for Vercel
 const serverless = require("serverless-http");
 
 module.exports = app;
