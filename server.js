@@ -1,16 +1,21 @@
 const express = require("express");
 const cors = require("cors");
-const bcrypt = require("bcryptjs"); // Updated import
-const knex = require("knex");
+const bcrypt = require("bcryptjs"); // Use bcryptjs
+const { knex } = require("knex");
 const register = require("./register");
+
+// Load environment variables
 require("dotenv").config();
 
 const app = express();
 app.use(express.json());
 
+// Configure CORS
 app.use(
   cors({
-    origin: ["https://vineethkumar12.github.io", "http://localhost:3000"],
+    origin: ["http://localhost:3000", "https://vineethkumar12.github.io"], // Allow both origins
+    methods: ["GET", "POST", "PUT", "DELETE"], // Allow specific methods
+    allowedHeaders: ["Content-Type", "Authorization"], // Allow specific headers
   })
 );
 
@@ -28,10 +33,11 @@ const db = knex({
   },
 });
 
+// Check database connection
 db.raw("SELECT 1")
   .then(() => console.log("Database connected"))
   .catch((err) => {
-    console.error("Database not connected:", err.message);
+    console.error("Database not connected:", err);
     process.exit(1);
   });
 
@@ -44,7 +50,7 @@ app.post("/signin", (req, res) => {
     .then((data) => {
       if (data.length > 0) {
         const hash = data[0].password;
-        bcrypt.compare(password, hash, (err, result) => {
+        bcrypt.compare(password, hash, function (err, result) {
           if (result) {
             db.select("*")
               .from("users")
@@ -69,10 +75,8 @@ app.post("/register", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.send({ message: "Server is running!" });
+  res.send(database);
 });
 
-const serverless = require("serverless-http");
-
-module.exports = app;
-module.exports.handler = serverless(app);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
