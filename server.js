@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcryptjs"); // Updated import
 const knex = require("knex");
 const register = require("./register");
 require("dotenv").config();
